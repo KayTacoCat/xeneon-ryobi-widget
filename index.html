@@ -14,6 +14,7 @@
       --accent-glow: rgba(142, 198, 63, 0.7);
       --text-main: #f5f7fa;
       --text-muted: #a3a8b3;
+      --danger: #ff6b6b;
       --border-subtle: rgba(255, 255, 255, 0.06);
     }
 
@@ -36,7 +37,7 @@
     }
 
     body {
-      padding: 10px 16px;
+      padding: 8px 14px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -136,8 +137,6 @@
       color: var(--text-muted);
     }
 
-    /* Header right side */
-
     .header-right {
       display: flex;
       align-items: center;
@@ -178,41 +177,98 @@
       color: var(--text-muted);
     }
 
-    /* Info bar */
+    /* Stats strip */
 
-    .info-bar {
+    .stats-strip {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
+      align-items: stretch;
+      gap: 6px;
       font-size: 11px;
-      color: var(--text-muted);
-      padding: 4px 9px;
-      border-radius: 999px;
-      background: linear-gradient(to right, rgba(5, 6, 10, 0.94), rgba(10, 14, 22, 0.96));
-      border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .info-left {
+    .stat-card {
+      flex: 1 1 0;
+      min-width: 0;
+      border-radius: 10px;
+      padding: 3px 8px;
+      background: rgba(5, 6, 12, 0.9);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stat-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stat-value.bad {
+      color: var(--danger);
+    }
+
+    /* Keyword chips for ticker filter */
+
+    .keywords-strip {
       display: flex;
       align-items: center;
-      gap: 8px;
-      min-width: 0;
+      gap: 6px;
+      margin-top: 2px;
+      font-size: 10px;
     }
 
-    .info-sep {
-      width: 3px;
-      height: 3px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.18);
-    }
-
-    .info-right {
+    .keywords-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
       white-space: nowrap;
-      opacity: 0.8;
     }
 
-    /* Main area */
+    .keyword-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 18px;
+    }
+
+    .keyword-chip {
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid rgba(142, 198, 63, 0.3);
+      background: rgba(8, 10, 15, 0.9);
+      color: var(--text-muted);
+      text-transform: lowercase;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .keyword-chip.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(142, 198, 63, 0.9);
+    }
+
+    /* Main feed */
 
     .main {
       flex: 1;
@@ -220,6 +276,7 @@
       align-items: stretch;
       justify-content: stretch;
       margin-top: 4px;
+      margin-bottom: 4px;
     }
 
     .feed-frame {
@@ -292,20 +349,79 @@
       }
     }
 
-    /* Responsive adjustment */
+    /* Ticker */
+
+    .ticker-shell {
+      height: 22px;
+      border-radius: 999px;
+      background: linear-gradient(to right, #050608, #10141f);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding-inline: 8px;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .ticker-label {
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 9px;
+      color: var(--accent);
+      white-space: nowrap;
+      opacity: 0.9;
+    }
+
+    .ticker-track {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .ticker-inner {
+      position: absolute;
+      white-space: nowrap;
+      display: inline-flex;
+      gap: 24px;
+      animation: ticker-scroll 40s linear infinite;
+    }
+
+    .ticker-item {
+      color: var(--text-muted);
+      opacity: 0.9;
+    }
+
+    .ticker-item strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .ticker-empty {
+      color: var(--text-muted);
+      opacity: 0.8;
+      font-style: italic;
+    }
+
+    @keyframes ticker-scroll {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
 
     @media (max-width: 900px) {
       body {
         padding-inline: 8px;
       }
-
       .title-main {
         font-size: 14px;
       }
-
-      .info-bar {
-        font-size: 10px;
-        padding-inline: 8px;
+      .stats-strip {
+        flex-direction: column;
       }
     }
   </style>
@@ -322,7 +438,7 @@
         <div class="title-main">r/ryobi radar</div>
         <div class="chip-row">
           <div class="chip">Wall layout</div>
-          <div class="chip chip-muted">Source: RSS.app · Reddit r/ryobi</div>
+          <div class="chip chip-muted">Source: RSS.app • Reddit r/ryobi</div>
         </div>
       </div>
     </div>
@@ -338,16 +454,28 @@
     </div>
   </header>
 
-  <section class="info-bar">
-    <div class="info-left">
-      <span>Latest posts from r/ryobi</span>
-      <div class="info-sep"></div>
-      <span>Feed updates handled by RSS.app</span>
-      <div class="info-sep"></div>
-      <span>Display: Xeneon full screen</span>
+  <section class="stats-strip">
+    <div class="stat-card">
+      <div class="stat-label">Posts in feed</div>
+      <div class="stat-value" id="statCount">--</div>
+      <div class="stat-sub" id="statCountSub">Waiting for metadata</div>
     </div>
-    <div class="info-right">
-      Designed for glanceable viewing, not interaction
+    <div class="stat-card">
+      <div class="stat-label">Newest post age</div>
+      <div class="stat-value" id="statAge">--</div>
+      <div class="stat-sub" id="statAgeSub">Last check: --:--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Top keywords</div>
+      <div class="stat-value" id="statKeywords">--</div>
+      <div class="stat-sub" id="statKeywordsSub">From recent titles</div>
+    </div>
+  </section>
+
+  <section class="keywords-strip">
+    <div class="keywords-label">Filter ticker</div>
+    <div class="keyword-chips" id="keywordChips">
+      <!-- Chips injected by JS -->
     </div>
   </section>
 
@@ -365,10 +493,33 @@
     </div>
   </main>
 
+  <section class="ticker-shell">
+    <div class="ticker-label">Ticker</div>
+    <div class="ticker-track">
+      <div class="ticker-inner" id="tickerInner"></div>
+      <div class="ticker-empty" id="tickerEmpty">Loading r/ryobi titles for ticker</div>
+    </div>
+  </section>
+
   <script>
     const clockTime = document.getElementById("clockTime");
     const clockDate = document.getElementById("clockDate");
     const clockDot = document.getElementById("clockDot");
+
+    const statCount = document.getElementById("statCount");
+    const statCountSub = document.getElementById("statCountSub");
+    const statAge = document.getElementById("statAge");
+    const statAgeSub = document.getElementById("statAgeSub");
+    const statKeywords = document.getElementById("statKeywords");
+    const statKeywordsSub = document.getElementById("statKeywordsSub");
+
+    const keywordChipsEl = document.getElementById("keywordChips");
+    const tickerInner = document.getElementById("tickerInner");
+    const tickerEmpty = document.getElementById("tickerEmpty");
+
+    const FEED_URL = "https://rss.app/feeds/NbvgRJvMlmSIRBEe.xml";
+    let lastTitles = [];
+    let activeKeywords = new Set();
 
     function updateClock() {
       const now = new Date();
@@ -392,10 +543,212 @@
       }, 450);
     }
 
+    function formatAge(date) {
+      if (!date) return "--";
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMin = Math.floor(diffMs / 60000);
+      const diffHr = Math.floor(diffMin / 60);
+      const diffDay = Math.floor(diffHr / 24);
+
+      if (diffMin < 1) return "just now";
+      if (diffMin < 60) return diffMin + " min";
+      if (diffHr < 24) return diffHr + " hr";
+      return diffDay + " d";
+    }
+
+    function extractKeywords(titles, limit = 4) {
+      const counts = new Map();
+      const stop = new Set([
+        "the","and","for","with","from","this","that","you","your","are","not",
+        "about","into","over","under","else","just","when","what","how","why",
+        "a","an","on","in","of","to","is","it","my","at","by","or","as"
+      ]);
+
+      titles.forEach(t => {
+        t.split(/\s+/).forEach(word => {
+          const clean = word
+            .toLowerCase()
+            .replace(/[^a-z0-9\+]/g, "")
+            .trim();
+          if (!clean || stop.has(clean) || clean.length < 3) return;
+          counts.set(clean, (counts.get(clean) || 0) + 1);
+        });
+      });
+
+      const top = Array.from(counts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, limit)
+        .map(([w]) => w);
+
+      return top;
+    }
+
+    function buildKeywordChips(topKeywords) {
+      keywordChipsEl.innerHTML = "";
+      activeKeywords.clear();
+
+      if (!topKeywords.length) {
+        const span = document.createElement("span");
+        span.className = "stat-sub";
+        span.textContent = "No keywords available";
+        keywordChipsEl.appendChild(span);
+        return;
+      }
+
+      topKeywords.forEach(word => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "keyword-chip";
+        btn.dataset.key = word;
+        btn.textContent = word;
+        keywordChipsEl.appendChild(btn);
+      });
+    }
+
+    function rebuildTicker() {
+      tickerInner.innerHTML = "";
+
+      if (!lastTitles.length) {
+        tickerEmpty.style.display = "block";
+        tickerEmpty.textContent = "Waiting for titles from r/ryobi feed";
+        return;
+      }
+
+      const active = Array.from(activeKeywords);
+      let titlesToUse = lastTitles.slice();
+
+      if (active.length) {
+        titlesToUse = titlesToUse.filter(t => {
+          const lower = t.toLowerCase();
+          return active.some(k => lower.includes(k.toLowerCase()));
+        });
+      }
+
+      if (!titlesToUse.length) {
+        tickerEmpty.style.display = "block";
+        tickerEmpty.textContent = "No titles match active keyword filters";
+        return;
+      }
+
+      const displayTitles = titlesToUse.slice(0, 10);
+      const doubled = displayTitles.concat(displayTitles);
+
+      doubled.forEach(title => {
+        const span = document.createElement("span");
+        span.className = "ticker-item";
+        const short = title.length > 80 ? title.slice(0, 77) + "..." : title;
+        span.innerHTML = "<strong>r/ryobi</strong> " + short;
+        tickerInner.appendChild(span);
+      });
+
+      tickerEmpty.style.display = "none";
+    }
+
+    async function loadFeedMeta() {
+      try {
+        const res = await fetch(FEED_URL);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const text = await res.text();
+
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, "application/xml");
+        const items = Array.from(xml.querySelectorAll("item"));
+
+        const count = items.length;
+        statCount.textContent = count || "--";
+        statCountSub.textContent = count
+          ? "Items in current r/ryobi feed"
+          : "No items found";
+
+        if (!count) {
+          statAge.textContent = "--";
+          statAgeSub.textContent = "Last check: --:--";
+          statKeywords.textContent = "--";
+          statKeywordsSub.textContent = "No titles available";
+          lastTitles = [];
+          buildKeywordChips([]);
+          rebuildTicker();
+          return;
+        }
+
+        const dates = items
+          .map(item => {
+            const d = item.querySelector("pubDate");
+            return d ? new Date(d.textContent) : null;
+          })
+          .filter(Boolean);
+
+        const newest = dates.reduce((a, b) => (a > b ? a : b), dates[0]);
+        const ageText = formatAge(newest);
+        statAge.textContent = ageText;
+
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, "0");
+        const mm = String(now.getMinutes()).padStart(2, "0");
+        statAgeSub.textContent = "Last check: " + hh + ":" + mm;
+
+        const titles = items.map(item => {
+          const t = item.querySelector("title");
+          return t ? t.textContent : "";
+        });
+
+        lastTitles = titles;
+
+        const topKeywords = extractKeywords(titles, 4);
+        if (topKeywords.length) {
+          statKeywords.textContent = topKeywords.join(" • ");
+          statKeywordsSub.textContent = "Most common title words";
+        } else {
+          statKeywords.textContent = "--";
+          statKeywordsSub.textContent = "Could not extract keywords";
+        }
+
+        buildKeywordChips(topKeywords);
+        rebuildTicker();
+      } catch (err) {
+        console.error("Feed metadata error", err);
+        statCount.textContent = "--";
+        statCountSub.textContent = "Could not reach RSS metadata";
+        statAge.textContent = "--";
+        statAgeSub.textContent = "Metadata offline";
+        statKeywords.textContent = "--";
+        statKeywordsSub.textContent = "Keyword analysis disabled";
+        lastTitles = [];
+        buildKeywordChips([]);
+        rebuildTicker();
+      }
+    }
+
+    function initKeywordClickHandler() {
+      keywordChipsEl.addEventListener("click", (e) => {
+        const chip = e.target.closest(".keyword-chip");
+        if (!chip) return;
+        const key = chip.dataset.key;
+        if (!key) return;
+
+        if (chip.classList.contains("active")) {
+          chip.classList.remove("active");
+          activeKeywords.delete(key);
+        } else {
+          chip.classList.add("active");
+          activeKeywords.add(key);
+        }
+
+        rebuildTicker();
+      });
+    }
+
+    // Init
     updateClock();
     pulseClockDot();
     setInterval(updateClock, 30000);
     setInterval(pulseClockDot, 5000);
+
+    loadFeedMeta();
+    setInterval(loadFeedMeta, 5 * 60 * 1000); // every 5 minutes
+
+    initKeywordClickHandler();
   </script>
 </body>
 </html>
