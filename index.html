@@ -7,34 +7,39 @@
   <style>
     :root {
       --bg: #050608;
+      --bg-soft: #0b0f18;
       --card-bg: #101319;
-      --accent: #8ec63f; /* Ryobi green style */
+      --accent: #8ec63f;
       --accent-soft: rgba(142, 198, 63, 0.12);
+      --accent-glow: rgba(142, 198, 63, 0.7);
       --text-main: #f5f7fa;
       --text-muted: #a3a8b3;
-      --danger: #ff6b6b;
+      --border-subtle: rgba(255, 255, 255, 0.06);
     }
 
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
-    html, body {
+    html,
+    body {
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle at top left, #1b2430 0, #050608 45%);
+      background:
+        radial-gradient(circle at top left, #1b2430 0, #050608 45%),
+        radial-gradient(circle at bottom right, #050608 0, #020307 45%);
       color: var(--text-main);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       overflow: hidden;
     }
 
     body {
-      padding: 6px 10px;
+      padding: 10px 16px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
     }
 
     /* Header */
@@ -49,14 +54,20 @@
     .title-block {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       min-width: 0;
     }
 
+    .logo-dot-wrap {
+      position: relative;
+      width: 22px;
+      height: 22px;
+    }
+
     .logo-dot {
-      width: 18px;
-      height: 18px;
-      border-radius: 6px;
+      position: absolute;
+      inset: 3px;
+      border-radius: 8px;
       background: conic-gradient(
         from 220deg,
         #8ec63f,
@@ -65,17 +76,27 @@
         #61b832,
         #8ec63f
       );
-      box-shadow: 0 0 10px rgba(142, 198, 63, 0.9);
+      box-shadow:
+        0 0 10px rgba(142, 198, 63, 0.9),
+        0 0 24px rgba(142, 198, 63, 0.4);
+    }
+
+    .logo-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      border: 1px solid rgba(142, 198, 63, 0.4);
+      opacity: 0.6;
     }
 
     .title-text {
       display: flex;
       flex-direction: column;
-      gap: 1px;
+      gap: 2px;
       min-width: 0;
     }
 
-    .title-text span:nth-child(1) {
+    .title-eyebrow {
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.16em;
@@ -83,503 +104,258 @@
       opacity: 0.9;
     }
 
-    .title-text span:nth-child(2) {
-      font-size: 15px;
+    .title-main {
+      font-size: 16px;
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .header-controls {
+    .chip-row {
       display: flex;
       align-items: center;
       gap: 6px;
+      margin-top: 1px;
       font-size: 10px;
     }
 
-    .mode-pill {
+    .chip {
       border-radius: 999px;
-      padding: 2px 10px;
+      padding: 2px 9px;
+      border: 1px solid rgba(142, 198, 63, 0.35);
       background: rgba(8, 10, 15, 0.92);
-      border: 1px solid rgba(142, 198, 63, 0.3);
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
       color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
       white-space: nowrap;
     }
 
-    .view-toggle {
-      display: inline-flex;
-      border-radius: 999px;
-      padding: 2px;
-      background: rgba(8, 10, 15, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+    .chip-muted {
+      border-color: var(--border-subtle);
+      color: var(--text-muted);
+    }
+
+    /* Header right side */
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+    }
+
+    .clock-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
       gap: 2px;
     }
 
-    .view-btn {
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: none;
-      background: transparent;
-      font-size: 10px;
-      color: var(--text-muted);
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      white-space: nowrap;
-      transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
-    }
-
-    .view-btn.active {
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 600;
-      box-shadow: 0 0 0 1px rgba(142, 198, 63, 0.7);
-    }
-
-    .view-btn:hover {
-      transform: translateY(-0.5px);
-    }
-
-    /* Meta row */
-
-    .meta-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .meta-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .pill {
-      border-radius: 999px;
-      padding: 1px 8px;
-      background: rgba(12, 198, 63, 0.08);
-      color: var(--accent);
-      border: 1px solid rgba(142, 198, 63, 0.25);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      white-space: nowrap;
-    }
-
-    .clock {
+    .clock-top {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       white-space: nowrap;
     }
 
     .clock-dot {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 999px;
       background: var(--accent);
       box-shadow: 0 0 6px rgba(142, 198, 63, 0.9);
-      transition: opacity 0.3s ease, background 0.3s ease;
+      transition: opacity 0.3s ease;
     }
 
-    .hint {
-      opacity: 0.65;
-      white-space: nowrap;
-    }
-
-    .status-pill {
-      border-radius: 999px;
-      padding: 1px 8px;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      white-space: nowrap;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: #4ade80;
-      box-shadow: 0 0 4px rgba(74, 222, 128, 0.8);
-    }
-
-    .status-pill.offline .status-dot {
-      background: var(--danger);
-      box-shadow: 0 0 4px rgba(255, 107, 107, 0.8);
-    }
-
-    /* Stats row */
-
-    .stats-row {
-      display: flex;
-      align-items: stretch;
-      gap: 6px;
-      margin-top: 2px;
-      font-size: 11px;
-    }
-
-    .stat-card {
-      flex: 1 1 0;
-      min-width: 0;
-      border-radius: 10px;
-      padding: 4px 8px;
-      background: rgba(5, 6, 10, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .stat-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-    }
-
-    .stat-value {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .stat-sub {
-      font-size: 10px;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Insights row */
-
-    .insights-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 2px;
-      font-size: 11px;
-    }
-
-    .insight-card {
-      flex: 1 1 0;
-      min-width: 0;
-      border-radius: 10px;
-      padding: 4px 8px;
-      background: rgba(5, 6, 12, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .insight-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .insight-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    .insight-sub {
-      font-size: 10px;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-align: right;
-    }
-
-    .activity-bars {
-      display: flex;
-      align-items: flex-end;
-      gap: 4px;
-      height: 32px;
-    }
-
-    .activity-bar {
-      flex: 1 1 0;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .activity-bar-fill {
-      width: 100%;
-      border-radius: 999px 999px 2px 2px;
-      background: linear-gradient(to top, rgba(142, 198, 63, 0.05), rgba(142, 198, 63, 0.9));
-      border: 1px solid rgba(142, 198, 63, 0.6);
-      box-shadow: 0 0 6px rgba(142, 198, 63, 0.6);
-      transition: height 0.25s ease;
-    }
-
-    .activity-bar-label {
-      font-size: 9px;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    .keyword-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-
-    .keyword-chip {
-      border-radius: 999px;
-      padding: 2px 8px;
-      font-size: 10px;
-      border: 1px solid rgba(142, 198, 63, 0.3);
-      background: rgba(8, 10, 15, 0.9);
-      color: var(--text-muted);
-      text-transform: lowercase;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-    }
-
-    .keyword-chip.active {
-      background: var(--accent-soft);
-      color: var(--accent);
-      border-color: rgba(142, 198, 63, 0.9);
-    }
-
-    /* Main feed shell */
-
-    .main-shell {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-top: 2px;
-    }
-
-    .feed-shell {
-      flex: 1;
-      display: flex;
-      align-items: stretch;
-      justify-content: stretch;
-    }
-
-    .feed-card {
-      flex: 1 1 auto;
-      border-radius: 12px;
-      padding: 4px;
-      background: radial-gradient(circle at top, #1b2532 0, #080b12 55%, #050608 100%);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      box-shadow:
-        0 0 16px rgba(0, 0, 0, 0.8),
-        0 0 18px rgba(142, 198, 63, 0.2);
-      display: flex;
-      align-items: stretch;
-      justify-content: stretch;
-      overflow: hidden;
-    }
-
-    .feed-card iframe {
-      flex: 1 1 auto;
-      border: 0;
-      width: 100%;
-      height: 100%;
-      transform: translateZ(0);
-    }
-
-    /* Ticker */
-
-    .ticker-shell {
-      height: 22px;
-      border-radius: 999px;
-      background: linear-gradient(to right, #050608, #10141f);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      padding-inline: 8px;
-      gap: 8px;
-      font-size: 11px;
-    }
-
-    .ticker-label {
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      font-size: 9px;
-      color: var(--accent);
-      white-space: nowrap;
-      opacity: 0.9;
-    }
-
-    .ticker-track {
-      position: relative;
-      flex: 1;
-      overflow: hidden;
-      height: 100%;
-    }
-
-    .ticker-inner {
-      position: absolute;
-      white-space: nowrap;
-      display: inline-flex;
-      gap: 24px;
-      animation: ticker-scroll 40s linear infinite;
-    }
-
-    .ticker-item {
-      color: var(--text-muted);
-      opacity: 0.9;
-    }
-
-    .ticker-item strong {
-      color: var(--text-main);
+    .clock-time {
+      font-size: 13px;
       font-weight: 500;
     }
 
-    .ticker-empty {
+    .clock-sub {
+      font-size: 10px;
       color: var(--text-muted);
-      opacity: 0.8;
-      font-style: italic;
     }
 
-    @keyframes ticker-scroll {
+    /* Info bar */
+
+    .info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: linear-gradient(to right, rgba(5, 6, 10, 0.94), rgba(10, 14, 22, 0.96));
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .info-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .info-sep {
+      width: 3px;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .info-right {
+      white-space: nowrap;
+      opacity: 0.8;
+    }
+
+    /* Main area */
+
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+      margin-top: 4px;
+    }
+
+    .feed-frame {
+      position: relative;
+      flex: 1 1 auto;
+      border-radius: 16px;
+      padding: 3px;
+      background: radial-gradient(circle at top, #1c2634 0, #05070d 55%, #020306 100%);
+      overflow: hidden;
+    }
+
+    .feed-border {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      pointer-events: none;
+    }
+
+    .feed-border::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow:
+        0 0 24px rgba(0, 0, 0, 0.9),
+        0 0 24px rgba(142, 198, 63, 0.18);
+    }
+
+    .feed-border::after {
+      content: "";
+      position: absolute;
+      inset: -80px;
+      background: conic-gradient(
+        from 220deg,
+        rgba(142, 198, 63, 0.1),
+        rgba(142, 198, 63, 0.85),
+        rgba(142, 198, 63, 0.1),
+        rgba(39, 61, 36, 0.4),
+        rgba(142, 198, 63, 0.1)
+      );
+      opacity: 0.35;
+      filter: blur(22px);
+      mix-blend-mode: screen;
+      animation: borderGlow 16s linear infinite;
+      pointer-events: none;
+    }
+
+    .feed-inner {
+      position: relative;
+      z-index: 1;
+      border-radius: 13px;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #151b24 0, #05070d 45%, #020306 100%);
+    }
+
+    .feed-inner iframe {
+      border: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    @keyframes borderGlow {
       from {
-        transform: translateX(0);
+        transform: rotate(0deg);
       }
       to {
-        transform: translateX(-50%);
+        transform: rotate(360deg);
       }
     }
 
-    /* Compact mode tweaks */
-
-    body.compact .feed-card {
-      padding: 2px;
-      border-radius: 10px;
-    }
-
-    body.compact .stat-card,
-    body.compact .insight-card {
-      padding-block: 2px;
-    }
-
-    body.compact .header {
-      margin-bottom: 0;
-    }
-
-    body.compact .title-text span:nth-child(2) {
-      font-size: 14px;
-    }
+    /* Responsive adjustment */
 
     @media (max-width: 900px) {
       body {
-        padding-inline: 6px;
+        padding-inline: 8px;
       }
-      .mode-pill {
-        display: none;
+
+      .title-main {
+        font-size: 14px;
       }
-      .hint {
-        display: none;
+
+      .info-bar {
+        font-size: 10px;
+        padding-inline: 8px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
+  <header class="header">
     <div class="title-block">
-      <div class="logo-dot"></div>
+      <div class="logo-dot-wrap">
+        <div class="logo-ring"></div>
+        <div class="logo-dot"></div>
+      </div>
       <div class="title-text">
-        <span>Live feed</span>
-        <span>r/ryobi - Tool radar</span>
+        <div class="title-eyebrow">Live feed</div>
+        <div class="title-main">r/ryobi radar</div>
+        <div class="chip-row">
+          <div class="chip">Wall layout</div>
+          <div class="chip chip-muted">Source: RSS.app · Reddit r/ryobi</div>
+        </div>
       </div>
     </div>
-    <div class="header-controls">
-      <div class="mode-pill">Wall view · RSS.app</div>
-      <div class="view-toggle">
-        <button class="view-btn active" data-view="expanded">Expanded</button>
-        <button class="view-btn" data-view="compact">Compact</button>
-      </div>
-    </div>
-  </div>
 
-  <div class="meta-row">
-    <div class="meta-left">
-      <div class="pill">Auto update</div>
-      <div class="clock">
-        <div class="clock-dot" id="clockDot"></div>
-        <span id="clockLabel">Local time: --:--</span>
+    <div class="header-right">
+      <div class="clock-block">
+        <div class="clock-top">
+          <div class="clock-dot" id="clockDot"></div>
+          <div class="clock-time" id="clockTime">--:--</div>
+        </div>
+        <div class="clock-sub" id="clockDate">--</div>
       </div>
     </div>
-    <div class="hint">Using RSS.app wall widget for r/ryobi</div>
-    <div class="status-pill" id="statusPill">
-      <div class="status-dot"></div>
-      <span id="statusLabel">Feed status: checking</span>
-    </div>
-  </div>
+  </header>
 
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-label">Posts in feed</div>
-      <div class="stat-value" id="statCount">--</div>
-      <div class="stat-sub" id="statCountSub">Waiting for feed</div>
+  <section class="info-bar">
+    <div class="info-left">
+      <span>Latest posts from r/ryobi</span>
+      <div class="info-sep"></div>
+      <span>Feed updates handled by RSS.app</span>
+      <div class="info-sep"></div>
+      <span>Display: Xeneon full screen</span>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Newest post age</div>
-      <div class="stat-value" id="statAge">--</div>
-      <div class="stat-sub" id="statAgeSub">Last refresh: --:--</div>
+    <div class="info-right">
+      Designed for glanceable viewing, not interaction
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Top keywords</div>
-      <div class="stat-value" id="statKeywords">--</div>
-      <div class="stat-sub" id="statKeywordsSub">From recent titles</div>
-    </div>
-  </div>
+  </section>
 
-  <div class="insights-row">
-    <div class="insight-card">
-      <div class="insight-header">
-        <span class="insight-label">Posting activity</span>
-        <span class="insight-sub" id="activitySummary">No data yet</span>
-      </div>
-      <div class="activity-bars" id="activityBars">
-        <!-- Bars injected by JS -->
-      </div>
-    </div>
-    <div class="insight-card">
-      <div class="insight-header">
-        <span class="insight-label">Highlight keywords</span>
-        <span class="insight-sub">Tap to filter ticker</span>
-      </div>
-      <div class="keyword-chips" id="keywordChips">
-        <!-- Chips injected by JS -->
-      </div>
-    </div>
-  </div>
-
-  <div class="main-shell">
-    <div class="feed-shell">
-      <div class="feed-card">
-        <!-- Working RSS.app wall widget -->
+  <main class="main">
+    <div class="feed-frame">
+      <div class="feed-border"></div>
+      <div class="feed-inner">
+        <!-- Your working RSS.app wall widget -->
         <iframe
           src="https://rss.app/embed/v1/wall/NbvgRJvMlmSIRBEe"
           loading="lazy"
@@ -587,340 +363,39 @@
         ></iframe>
       </div>
     </div>
-
-    <div class="ticker-shell">
-      <div class="ticker-label">Ticker</div>
-      <div class="ticker-track">
-        <div class="ticker-inner" id="tickerInner"></div>
-        <div class="ticker-empty" id="tickerEmpty">Loading r/ryobi titles for ticker</div>
-      </div>
-    </div>
-  </div>
+  </main>
 
   <script>
-    const clockLabel = document.getElementById("clockLabel");
+    const clockTime = document.getElementById("clockTime");
+    const clockDate = document.getElementById("clockDate");
     const clockDot = document.getElementById("clockDot");
-    const statusPill = document.getElementById("statusPill");
-    const statusLabel = document.getElementById("statusLabel");
-
-    const statCount = document.getElementById("statCount");
-    const statCountSub = document.getElementById("statCountSub");
-    const statAge = document.getElementById("statAge");
-    const statAgeSub = document.getElementById("statAgeSub");
-    const statKeywords = document.getElementById("statKeywords");
-    const statKeywordsSub = document.getElementById("statKeywordsSub");
-
-    const activityBarsEl = document.getElementById("activityBars");
-    const activitySummaryEl = document.getElementById("activitySummary");
-    const keywordChipsEl = document.getElementById("keywordChips");
-
-    const tickerInner = document.getElementById("tickerInner");
-    const tickerEmpty = document.getElementById("tickerEmpty");
-
-    const viewButtons = document.querySelectorAll(".view-btn");
-
-    const FEED_URL = "https://rss.app/feeds/NbvgRJvMlmSIRBEe.xml";
-
-    let lastTitles = [];
-    let activeKeywords = new Set();
 
     function updateClock() {
       const now = new Date();
       const hh = String(now.getHours()).padStart(2, "0");
       const mm = String(now.getMinutes()).padStart(2, "0");
-      clockLabel.textContent = "Local time: " + hh + ":" + mm;
+      clockTime.textContent = hh + ":" + mm;
+
+      const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const day = dayNames[now.getDay()];
+      const date = now.getDate();
+      const month = monthNames[now.getMonth()];
+      clockDate.textContent = day + " " + month + " " + date;
     }
 
-    function pulseDot(ok = true) {
+    function pulseClockDot() {
       if (!clockDot) return;
-      clockDot.style.background = ok ? "var(--accent)" : "var(--danger)";
       clockDot.style.opacity = "1";
       setTimeout(() => {
-        clockDot.style.opacity = "0.3";
-      }, 400);
+        clockDot.style.opacity = "0.25";
+      }, 450);
     }
 
-    function formatAge(date) {
-      if (!date) return "--";
-      const now = new Date();
-      const diffMs = now - date;
-      const diffMin = Math.floor(diffMs / 60000);
-      const diffHr = Math.floor(diffMin / 60);
-      const diffDay = Math.floor(diffHr / 24);
-
-      if (diffMin < 1) return "just now";
-      if (diffMin < 60) return diffMin + " min";
-      if (diffHr < 24) return diffHr + " hr";
-      return diffDay + " d";
-    }
-
-    function extractKeywords(titles, limit = 5) {
-      const counts = new Map();
-      const stop = new Set([
-        "the","and","for","with","from","this","that","you","your","are","not",
-        "about","into","over","under","else","just","when","what","how","why",
-        "a","an","on","in","of","to","is","it","my","at","by","or","as"
-      ]);
-
-      titles.forEach(t => {
-        t.split(/\s+/).forEach(word => {
-          const clean = word
-            .toLowerCase()
-            .replace(/[^a-z0-9\+]/g, "")
-            .trim();
-          if (!clean || stop.has(clean) || clean.length < 3) return;
-          counts.set(clean, (counts.get(clean) || 0) + 1);
-        });
-      });
-
-      const top = Array.from(counts.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, limit)
-        .map(([w]) => w);
-
-      return top;
-    }
-
-    function buildActivityBars(dates) {
-      const buckets = [
-        { label: "0–4", count: 0 },
-        { label: "4–8", count: 0 },
-        { label: "8–12", count: 0 },
-        { label: "12–16", count: 0 },
-        { label: "16–20", count: 0 },
-        { label: "20–24", count: 0 }
-      ];
-
-      dates.forEach(d => {
-        const h = d.getHours();
-        const idx = Math.min(5, Math.floor(h / 4));
-        buckets[idx].count += 1;
-      });
-
-      const maxCount = buckets.reduce((m, b) => Math.max(m, b.count), 0);
-      activityBarsEl.innerHTML = "";
-
-      if (!maxCount) {
-        activitySummaryEl.textContent = "No recent time-of-day pattern";
-        return;
-      }
-
-      let topBucket = buckets[0];
-      buckets.forEach(b => {
-        if (b.count > topBucket.count) topBucket = b;
-      });
-
-      activitySummaryEl.textContent =
-        "Most posts in " + topBucket.label + "h window";
-
-      buckets.forEach(b => {
-        const col = document.createElement("div");
-        col.className = "activity-bar";
-
-        const ratio = b.count / maxCount;
-        const heightPct = 20 + ratio * 70; // 20–90%
-
-        const fill = document.createElement("div");
-        fill.className = "activity-bar-fill";
-        fill.style.height = heightPct + "%";
-
-        const label = document.createElement("div");
-        label.className = "activity-bar-label";
-        label.textContent = b.label;
-
-        col.appendChild(fill);
-        col.appendChild(label);
-        activityBarsEl.appendChild(col);
-      });
-    }
-
-    function buildKeywordChips(topKeywords) {
-      keywordChipsEl.innerHTML = "";
-      activeKeywords.clear();
-
-      if (!topKeywords.length) {
-        const span = document.createElement("span");
-        span.className = "stat-sub";
-        span.textContent = "No keywords available";
-        keywordChipsEl.appendChild(span);
-        return;
-      }
-
-      topKeywords.forEach(word => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "keyword-chip";
-        btn.dataset.key = word;
-        btn.textContent = word;
-        keywordChipsEl.appendChild(btn);
-      });
-    }
-
-    function rebuildTicker() {
-      tickerInner.innerHTML = "";
-
-      if (!lastTitles.length) {
-        tickerEmpty.style.display = "block";
-        tickerEmpty.textContent = "Waiting for titles from r/ryobi feed";
-        return;
-      }
-
-      const active = Array.from(activeKeywords);
-      let titlesToUse = lastTitles.slice();
-
-      if (active.length) {
-        titlesToUse = titlesToUse.filter(t => {
-          const lower = t.toLowerCase();
-          return active.some(k => lower.includes(k.toLowerCase()));
-        });
-      }
-
-      if (!titlesToUse.length) {
-        tickerEmpty.style.display = "block";
-        tickerEmpty.textContent = "No titles match active keyword filters";
-        return;
-      }
-
-      const displayTitles = titlesToUse.slice(0, 10);
-      const doubled = displayTitles.concat(displayTitles);
-
-      doubled.forEach(title => {
-        const span = document.createElement("span");
-        span.className = "ticker-item";
-        const short = title.length > 80 ? title.slice(0, 77) + "..." : title;
-        span.innerHTML = "<strong>r/ryobi</strong> " + short;
-        tickerInner.appendChild(span);
-      });
-
-      tickerEmpty.style.display = "none";
-    }
-
-    async function loadFeedStats() {
-      try {
-        statusPill.classList.remove("offline");
-        statusLabel.textContent = "Feed status: checking";
-        pulseDot(true);
-
-        const res = await fetch(FEED_URL);
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const text = await res.text();
-
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, "application/xml");
-        const items = Array.from(xml.querySelectorAll("item"));
-
-        const count = items.length;
-        statCount.textContent = count || "--";
-        statCountSub.textContent = count
-          ? "Items in current r/ryobi feed"
-          : "No items found";
-
-        if (!count) {
-          statusPill.classList.add("offline");
-          statusLabel.textContent = "Feed status: no items";
-          activityBarsEl.innerHTML = "";
-          activitySummaryEl.textContent = "No data yet";
-          keywordChipsEl.innerHTML = "";
-          rebuildTicker();
-          return;
-        }
-
-        const dates = items
-          .map(item => {
-            const d = item.querySelector("pubDate");
-            return d ? new Date(d.textContent) : null;
-          })
-          .filter(Boolean);
-
-        const newest = dates.reduce((a, b) => (a > b ? a : b), dates[0]);
-        const ageText = formatAge(newest);
-        statAge.textContent = ageText;
-
-        const now = new Date();
-        const hh = String(now.getHours()).padStart(2, "0");
-        const mm = String(now.getMinutes()).padStart(2, "0");
-        statAgeSub.textContent = "Last feed check: " + hh + ":" + mm;
-
-        const titles = items.map(item => {
-          const t = item.querySelector("title");
-          return t ? t.textContent : "";
-        });
-
-        lastTitles = titles;
-
-        const topKeywords = extractKeywords(titles, 5);
-        if (topKeywords.length) {
-          statKeywords.textContent = topKeywords.join(" • ");
-          statKeywordsSub.textContent = "Most common title words";
-        } else {
-          statKeywords.textContent = "--";
-          statKeywordsSub.textContent = "Could not extract keywords";
-        }
-
-        buildActivityBars(dates);
-        buildKeywordChips(topKeywords);
-        rebuildTicker();
-
-        statusPill.classList.remove("offline");
-        statusLabel.textContent = "Feed status: online";
-      } catch (err) {
-        console.error("Feed stats error", err);
-        statusPill.classList.add("offline");
-        statusLabel.textContent = "Feed status: offline";
-        statCount.textContent = "--";
-        statCountSub.textContent = "Could not reach RSS feed";
-        statAge.textContent = "--";
-        statAgeSub.textContent = "Check network or CORS";
-        statKeywords.textContent = "--";
-        statKeywordsSub.textContent = "Keyword analysis disabled";
-        activityBarsEl.innerHTML = "";
-        activitySummaryEl.textContent = "No data yet";
-        lastTitles = [];
-        rebuildTicker();
-        pulseDot(false);
-      }
-    }
-
-    function initKeywordClicks() {
-      keywordChipsEl.addEventListener("click", (e) => {
-        const chip = e.target.closest(".keyword-chip");
-        if (!chip) return;
-        const key = chip.dataset.key;
-        if (!key) return;
-
-        if (chip.classList.contains("active")) {
-          chip.classList.remove("active");
-          activeKeywords.delete(key);
-        } else {
-          chip.classList.add("active");
-          activeKeywords.add(key);
-        }
-        rebuildTicker();
-      });
-    }
-
-    function initViewToggle() {
-      viewButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-          const view = btn.dataset.view;
-          viewButtons.forEach(b => b.classList.toggle("active", b === btn));
-          if (view === "compact") {
-            document.body.classList.add("compact");
-          } else {
-            document.body.classList.remove("compact");
-          }
-        });
-      });
-    }
-
-    // Init
     updateClock();
+    pulseClockDot();
     setInterval(updateClock, 30000);
-    setInterval(() => pulseDot(true), 5000);
-    loadFeedStats();
-    setInterval(loadFeedStats, 5 * 60 * 1000); // every 5 minutes
-    initKeywordClicks();
-    initViewToggle();
+    setInterval(pulseClockDot, 5000);
   </script>
 </body>
 </html>
