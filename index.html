@@ -266,6 +266,107 @@
       text-overflow: ellipsis;
     }
 
+    /* Insights row */
+
+    .insights-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 2px;
+      font-size: 11px;
+    }
+
+    .insight-card {
+      flex: 1 1 0;
+      min-width: 0;
+      border-radius: 10px;
+      padding: 4px 8px;
+      background: rgba(5, 6, 12, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .insight-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .insight-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .insight-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: right;
+    }
+
+    .activity-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 32px;
+    }
+
+    .activity-bar {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .activity-bar-fill {
+      width: 100%;
+      border-radius: 999px 999px 2px 2px;
+      background: linear-gradient(to top, rgba(142, 198, 63, 0.05), rgba(142, 198, 63, 0.9));
+      border: 1px solid rgba(142, 198, 63, 0.6);
+      box-shadow: 0 0 6px rgba(142, 198, 63, 0.6);
+      transition: height 0.25s ease;
+    }
+
+    .activity-bar-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .keyword-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .keyword-chip {
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 10px;
+      border: 1px solid rgba(142, 198, 63, 0.3);
+      background: rgba(8, 10, 15, 0.9);
+      color: var(--text-muted);
+      text-transform: lowercase;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .keyword-chip.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(142, 198, 63, 0.9);
+    }
+
     /* Main feed shell */
 
     .main-shell {
@@ -377,7 +478,8 @@
       border-radius: 10px;
     }
 
-    body.compact .stat-card {
+    body.compact .stat-card,
+    body.compact .insight-card {
       padding-block: 2px;
     }
 
@@ -453,6 +555,27 @@
     </div>
   </div>
 
+  <div class="insights-row">
+    <div class="insight-card">
+      <div class="insight-header">
+        <span class="insight-label">Posting activity</span>
+        <span class="insight-sub" id="activitySummary">No data yet</span>
+      </div>
+      <div class="activity-bars" id="activityBars">
+        <!-- Bars injected by JS -->
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-header">
+        <span class="insight-label">Highlight keywords</span>
+        <span class="insight-sub">Tap to filter ticker</span>
+      </div>
+      <div class="keyword-chips" id="keywordChips">
+        <!-- Chips injected by JS -->
+      </div>
+    </div>
+  </div>
+
   <div class="main-shell">
     <div class="feed-shell">
       <div class="feed-card">
@@ -487,13 +610,19 @@
     const statKeywords = document.getElementById("statKeywords");
     const statKeywordsSub = document.getElementById("statKeywordsSub");
 
+    const activityBarsEl = document.getElementById("activityBars");
+    const activitySummaryEl = document.getElementById("activitySummary");
+    const keywordChipsEl = document.getElementById("keywordChips");
+
     const tickerInner = document.getElementById("tickerInner");
     const tickerEmpty = document.getElementById("tickerEmpty");
 
     const viewButtons = document.querySelectorAll(".view-btn");
 
-    // Use the feed url you already have
     const FEED_URL = "https://rss.app/feeds/NbvgRJvMlmSIRBEe.xml";
+
+    let lastTitles = [];
+    let activeKeywords = new Set();
 
     function updateClock() {
       const now = new Date();
@@ -525,7 +654,7 @@
       return diffDay + " d";
     }
 
-    function extractKeywords(titles, limit = 3) {
+    function extractKeywords(titles, limit = 5) {
       const counts = new Map();
       const stop = new Set([
         "the","and","for","with","from","this","that","you","your","are","not",
@@ -552,6 +681,120 @@
       return top;
     }
 
+    function buildActivityBars(dates) {
+      const buckets = [
+        { label: "0–4", count: 0 },
+        { label: "4–8", count: 0 },
+        { label: "8–12", count: 0 },
+        { label: "12–16", count: 0 },
+        { label: "16–20", count: 0 },
+        { label: "20–24", count: 0 }
+      ];
+
+      dates.forEach(d => {
+        const h = d.getHours();
+        const idx = Math.min(5, Math.floor(h / 4));
+        buckets[idx].count += 1;
+      });
+
+      const maxCount = buckets.reduce((m, b) => Math.max(m, b.count), 0);
+      activityBarsEl.innerHTML = "";
+
+      if (!maxCount) {
+        activitySummaryEl.textContent = "No recent time-of-day pattern";
+        return;
+      }
+
+      let topBucket = buckets[0];
+      buckets.forEach(b => {
+        if (b.count > topBucket.count) topBucket = b;
+      });
+
+      activitySummaryEl.textContent =
+        "Most posts in " + topBucket.label + "h window";
+
+      buckets.forEach(b => {
+        const col = document.createElement("div");
+        col.className = "activity-bar";
+
+        const ratio = b.count / maxCount;
+        const heightPct = 20 + ratio * 70; // 20–90%
+
+        const fill = document.createElement("div");
+        fill.className = "activity-bar-fill";
+        fill.style.height = heightPct + "%";
+
+        const label = document.createElement("div");
+        label.className = "activity-bar-label";
+        label.textContent = b.label;
+
+        col.appendChild(fill);
+        col.appendChild(label);
+        activityBarsEl.appendChild(col);
+      });
+    }
+
+    function buildKeywordChips(topKeywords) {
+      keywordChipsEl.innerHTML = "";
+      activeKeywords.clear();
+
+      if (!topKeywords.length) {
+        const span = document.createElement("span");
+        span.className = "stat-sub";
+        span.textContent = "No keywords available";
+        keywordChipsEl.appendChild(span);
+        return;
+      }
+
+      topKeywords.forEach(word => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "keyword-chip";
+        btn.dataset.key = word;
+        btn.textContent = word;
+        keywordChipsEl.appendChild(btn);
+      });
+    }
+
+    function rebuildTicker() {
+      tickerInner.innerHTML = "";
+
+      if (!lastTitles.length) {
+        tickerEmpty.style.display = "block";
+        tickerEmpty.textContent = "Waiting for titles from r/ryobi feed";
+        return;
+      }
+
+      const active = Array.from(activeKeywords);
+      let titlesToUse = lastTitles.slice();
+
+      if (active.length) {
+        titlesToUse = titlesToUse.filter(t => {
+          const lower = t.toLowerCase();
+          return active.some(k => lower.includes(k.toLowerCase()));
+        });
+      }
+
+      if (!titlesToUse.length) {
+        tickerEmpty.style.display = "block";
+        tickerEmpty.textContent = "No titles match active keyword filters";
+        return;
+      }
+
+      const displayTitles = titlesToUse.slice(0, 10);
+      const doubled = displayTitles.concat(displayTitles);
+
+      doubled.forEach(title => {
+        const span = document.createElement("span");
+        span.className = "ticker-item";
+        const short = title.length > 80 ? title.slice(0, 77) + "..." : title;
+        span.innerHTML = "<strong>r/ryobi</strong> " + short;
+        tickerInner.appendChild(span);
+      });
+
+      tickerEmpty.style.display = "none";
+    }
+
     async function loadFeedStats() {
       try {
         statusPill.classList.remove("offline");
@@ -575,6 +818,10 @@
         if (!count) {
           statusPill.classList.add("offline");
           statusLabel.textContent = "Feed status: no items";
+          activityBarsEl.innerHTML = "";
+          activitySummaryEl.textContent = "No data yet";
+          keywordChipsEl.innerHTML = "";
+          rebuildTicker();
           return;
         }
 
@@ -599,7 +846,9 @@
           return t ? t.textContent : "";
         });
 
-        const topKeywords = extractKeywords(titles, 3);
+        lastTitles = titles;
+
+        const topKeywords = extractKeywords(titles, 5);
         if (topKeywords.length) {
           statKeywords.textContent = topKeywords.join(" • ");
           statKeywordsSub.textContent = "Most common title words";
@@ -608,23 +857,9 @@
           statKeywordsSub.textContent = "Could not extract keywords";
         }
 
-        // Build ticker
-        tickerInner.innerHTML = "";
-        const tickerTitles = titles.slice(0, 10);
-        if (tickerTitles.length) {
-          tickerEmpty.style.display = "none";
-          const doubled = tickerTitles.concat(tickerTitles);
-          doubled.forEach((title, idx) => {
-            const span = document.createElement("span");
-            span.className = "ticker-item";
-            const short = title.length > 80 ? title.slice(0, 77) + "..." : title;
-            span.innerHTML = "<strong>r/ryobi</strong> " + short;
-            tickerInner.appendChild(span);
-          });
-        } else {
-          tickerEmpty.style.display = "block";
-          tickerEmpty.textContent = "Feed loaded but no titles available";
-        }
+        buildActivityBars(dates);
+        buildKeywordChips(topKeywords);
+        rebuildTicker();
 
         statusPill.classList.remove("offline");
         statusLabel.textContent = "Feed status: online";
@@ -637,11 +872,31 @@
         statAge.textContent = "--";
         statAgeSub.textContent = "Check network or CORS";
         statKeywords.textContent = "--";
-        tickerInner.innerHTML = "";
-        tickerEmpty.style.display = "block";
-        tickerEmpty.textContent = "Ticker disabled - feed not reachable";
+        statKeywordsSub.textContent = "Keyword analysis disabled";
+        activityBarsEl.innerHTML = "";
+        activitySummaryEl.textContent = "No data yet";
+        lastTitles = [];
+        rebuildTicker();
         pulseDot(false);
       }
+    }
+
+    function initKeywordClicks() {
+      keywordChipsEl.addEventListener("click", (e) => {
+        const chip = e.target.closest(".keyword-chip");
+        if (!chip) return;
+        const key = chip.dataset.key;
+        if (!key) return;
+
+        if (chip.classList.contains("active")) {
+          chip.classList.remove("active");
+          activeKeywords.delete(key);
+        } else {
+          chip.classList.add("active");
+          activeKeywords.add(key);
+        }
+        rebuildTicker();
+      });
     }
 
     function initViewToggle() {
@@ -664,6 +919,7 @@
     setInterval(() => pulseDot(true), 5000);
     loadFeedStats();
     setInterval(loadFeedStats, 5 * 60 * 1000); // every 5 minutes
+    initKeywordClicks();
     initViewToggle();
   </script>
 </body>
