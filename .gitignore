@@ -1,0 +1,15 @@
+# Local environment files and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local development output
+node_modules/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
