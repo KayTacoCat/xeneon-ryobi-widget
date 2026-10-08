@@ -7,8 +7,23 @@ import vm from 'node:vm';
 // HTML parsers normalize CRLF before CSP hashes are checked.
 const html = (await readFile(new URL('../index.html', import.meta.url), 'utf8'))
   .replace(/\r\n?/g, '\n');
-const script = html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
-assert.ok(script, 'The page must have an inline widget script');
+
+// Extract the single known block from this checked-in page. This is a strict
+// fixture reader, not a sanitizer or a parser for arbitrary/untrusted HTML.
+function inlineBlock(tag) {
+  const open = `<${tag}>`;
+  const close = `</${tag}>`;
+  const start = html.indexOf(open);
+  assert.ok(start >= 0, `The page must have an inline ${tag} block`);
+  const bodyStart = start + open.length;
+  const end = html.indexOf(close, bodyStart);
+  assert.ok(end >= bodyStart, `The inline ${tag} block must close`);
+  assert.equal(html.indexOf(open, bodyStart), -1, `Expected exactly one inline ${tag} block`);
+  assert.equal(html.indexOf(close, end + close.length), -1, `Expected exactly one closing ${tag} tag`);
+  return html.slice(bodyStart, end);
+}
+
+const script = inlineBlock('script');
 
 class TextNode {
   constructor(text) { this.textContent = String(text); }
@@ -152,9 +167,7 @@ test('CSP allows exactly the current script/style and fixed HTTPS feed endpoints
   }));
   assert.equal(directives.size, 8, 'Extra source directives must not override the restrictive policy');
   for (const tag of ['script', 'style']) {
-    const blocks = [...html.matchAll(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'g'))];
-    assert.equal(blocks.length, 1);
-    const hash = createHash('sha256').update(blocks[0][1]).digest('base64');
+    const hash = createHash('sha256').update(inlineBlock(tag)).digest('base64');
     assert.equal(directives.get(`${tag}-src`), `'sha256-${hash}'`);
   }
   for (const directive of ['default-src', 'base-uri', 'object-src', 'form-action']) {
